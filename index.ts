@@ -1,4 +1,4 @@
-import Discord, { ApplicationCommandOptionType, ApplicationCommandType, Client, Collection, CommandInteraction, InteractionResponse } from "discord.js";
+import Discord, { ApplicationCommandOptionType, Client, Collection, CommandInteraction, InteractionResponse } from "discord.js";
 import { Configuration, OpenAIApi } from "openai";
 
 type CommandArgs = {
@@ -29,7 +29,7 @@ const commands: ICommand[] = [
             options: [
                 {
                     name: "content",
-                    description: "enter your question",
+                    description: "Enter your question",
                     type: ApplicationCommandOptionType.String,
                     required: true
                 }
@@ -68,7 +68,7 @@ const commands: ICommand[] = [
             options: [
                 {
                     name: "content",
-                    description: "enter your question",
+                    description: "Enter your question",
                     type: ApplicationCommandOptionType.String,
                     required: true
                 }
@@ -85,12 +85,9 @@ const commands: ICommand[] = [
             }).then(res => {
                 try {
                     const embed = new Discord.EmbedBuilder()
+                        .setTitle(`${content}`)
                         .setImage(res.data.data[0].url || "")
                         .setColor('Random')
-                        .setFooter({
-                            text: `Requested by ${interaction.user.tag}`,
-                            iconURL: interaction.user.displayAvatarURL()
-                        })
                         .setTimestamp()
                     interaction.editReply({ embeds: [embed] });
                 } catch (e) {
@@ -125,8 +122,12 @@ client.on("ready", () => {
 
     client.on("interactionCreate", interaction => {
         if (interaction.isCommand() && interaction.channel?.id == process.env.CHANNEL_ID) {
-            const command: ICommand | undefined = client.commands.get(interaction.command?.name || "");
-            command?.execute({ client, interaction });
+            try {
+                const command: ICommand | undefined = client.commands.get(interaction.command?.name || "");
+                command?.execute({ client, interaction });
+            } catch (e) {
+                console.error(e);
+            }
         }
     })
 })
